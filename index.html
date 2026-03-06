@@ -12,101 +12,93 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            min-height: 100vh; /* Dùng min-height để tránh lỗi trên thiết bị nhỏ */
-            /* Nền loang màu hồng sữa nhẹ nhàng */
-            background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
+            min-height: 100vh; 
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe4e1 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden; /* Ẩn thanh cuộn của body */
+            overflow: hidden; 
+            position: relative;
         }
         
+        /* --- HIỆU ỨNG TRÁI TIM TRÔI LƠ LỬNG --- */
+        .heart {
+            position: absolute;
+            color: #ffb6c1;
+            font-size: 20px;
+            user-select: none;
+            z-index: -1; /* Nằm dưới mô hình và chữ */
+            animation: float 10s linear infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
         .container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; /* Cho mọi thứ bắt đầu từ trên xuống */
-            width: 95%; /* Tăng độ rộng container cho thoáng */
+            width: 95%;
             max-width: 1200px;
-            height: 90vh; /* Container chiếm gần hết chiều cao màn hình */
+            height: 95vh;
             padding: 20px;
-            box-sizing: border-box;
+            z-index: 1;
         }
 
-        /* --- CHỈNH SỬA SIZE KHUNG MÔ HÌNH --- */
         model-viewer { 
             width: 100%; 
-            /* SỬA 1: Ép chiều cao khung mô hình lớn lên để chừa chỗ cho camera lùi xa */
-            height: 70vh; /* Mô hình chiếm 70% chiều cao màn hình */
-            /* SỬA 2: Thêm viền và bóng đổ để xác định rõ khung hình (giống hình 3) */
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.4); /* Bóng hồng đậm hơn tí cho rõ */
-            background-color: rgba(255, 255, 255, 0.5); /* Nền mờ bên trong khung */
-            
-            /* SỬA 3: Các thuộc tính quan trọng để khắc phục mô hình "tàng hình" */
-            --poster-color: transparent; /* Ẩn ảnh chờ */
-            --progress-bar-color: #00ff88; /* Màu thanh load hệ thống */
+            height: 65vh; 
+            border-radius: 30px;
+            box-shadow: 0 10px 40px rgba(255, 182, 193, 0.5);
+            background-color: rgba(255, 255, 255, 0.4);
+            --poster-color: transparent;
         }
 
-        /* --- CSS CHO LỜI CHÚC (ĐÁNH CHỮ TỪ TỪ) --- */
         .typing-container {
-            /* SỬA 4: Tạo khoảng cách hợp lý dưới mô hình */
-            margin-top: 30px; 
+            margin-top: 25px;
             width: 100%;
             text-align: center;
-            min-height: 120px; /* Tăng chiều cao để không bị nhảy trang */
+            min-height: 100px;
         }
 
         .typing-text {
-            color: #d88; /* Màu hồng đậm nhẹ nhàng cho chữ */
-            font-size: 1.1em; /* Giảm nhẹ size chữ cho tinh tế */
+            color: #d88;
+            font-size: 1.15em;
             font-weight: 500;
-            line-height: 1.7;
-            margin: 0;
-            display: inline-block;
-            white-space: pre-wrap; /* Giữ xuống hàng */
+            line-height: 1.8;
+            white-space: pre-wrap;
         }
 
-        /* Con trỏ nhấp nháy tạo cảm giác đang gõ */
         .cursor {
             display: inline-block;
             width: 2px;
             height: 1.1em;
             background-color: #d88;
             margin-left: 5px;
-            vertical-align: middle;
             animation: blink 0.7s infinite;
         }
 
-        @keyframes blink {
-            50% { opacity: 0; }
-        }
-
-        /* --- CSS CHO THANH LOADING TỰ LÀM (Ẩn đi vì model-viewer có thanh load riêng) --- */
-        .custom-progress-bar {
-            display: none !important; /* Khóa hẳn thanh load cũ */
-        }
+        @keyframes blink { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
 
+    <div id="heart-spawn"></div>
+
     <div class="container">
         <model-viewer 
             src="model-v4.glb" 
-            alt="Mô hình 3D đặc biệt" 
+            alt="Mô hình 3D" 
             auto-rotate 
             camera-controls 
             shadow-intensity="1.5"
             exposure="1.2"
-            
-            /* SỬA 5: CHIÊU QUYẾT ĐỊNH: Ép camera phải lùi ra rất xa để nhìn thấy mô hình to */
-            /* Giá trị 'auto auto 200%' nghĩa là lùi camera gấp đôi khoảng cách mặc định */
             camera-orbit="auto auto 200%"
-            /* Cho phép zoom ra xa hơn nữa nếu cần */
-            min-camera-orbit="auto auto 5%"
-            max-camera-orbit="auto auto 500%"
-            
             id="my-model">
-            
-            </model-viewer>
+        </model-viewer>
 
         <div class="typing-container">
             <p id="typing-text" class="typing-text"></p><span class="cursor">|</span>
@@ -114,12 +106,28 @@
     </div>
 
     <script>
+        // --- 1. TẠO TRÁI TIM BAY ---
+        function createHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.innerHTML = '❤'; // Bạn có thể thay bằng các icon khác như 💕, 💖
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = (Math.random() * 5 + 5) + 's'; // Từ 5s - 10s
+            heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+            document.getElementById('heart-spawn').appendChild(heart);
+
+            setTimeout(() => { heart.remove(); }, 10000);
+        }
+        setInterval(createHeart, 400); // Cứ 0.4s tạo 1 trái tim mới
+
+        // --- 2. HIỆU ỨNG GÕ CHỮ ---
         const modelViewer = document.querySelector('#my-model');
         const typingTextEl = document.querySelector('#typing-text');
         const cursorEl = document.querySelector('.cursor');
 
-        const message = "Gửi công chúa nhỏ, nhớ giữ sức khỏe cho bản thân đấy, ăn uống đàng hoàng,\ntới kỳ thì nhớ giữ ấm, đừng làm việc nặng giữ sức nhé.\nBất cứ lúc nào cũng có thể gọi tui.\nThương cậu";
-        const typingSpeed = 70; 
+        // Thêm icon ❤️ ở cuối câu
+        const message = "Gửi công chúa nhỏ, nhớ giữ sức khỏe cho bản thân đấy, ăn uống đàng hoàng,\ntới kỳ thì nhớ giữ ấm, đừng làm việc nặng giữ sức nhé.\nBất cứ lúc nào cũng có thể gọi tui.\nThương cô ❤️";
+        const typingSpeed = 80; 
         let charIndex = 0;
 
         function startTyping() {
@@ -128,18 +136,13 @@
                 charIndex++;
                 setTimeout(startTyping, typingSpeed);
             } else {
-                setTimeout(() => {
-                    cursorEl.style.display = 'none';
-                }, 1000);
+                setTimeout(() => { cursorEl.style.display = 'none'; }, 2000);
             }
         }
 
-        // Bắt đầu gõ chữ ngay khi mô hình load xong
         modelViewer.addEventListener('load', () => {
-            setTimeout(startTyping, 1000); // Đợi 1 giây cho ổn định rồi gõ
+            setTimeout(startTyping, 1200);
         });
     </script>
-
 </body>
 </html>
-
