@@ -10,60 +10,66 @@
             margin: 0; 
             padding: 0; 
             display: flex; 
-            flex-direction: column; /* Xếp mô hình trên, chữ dưới */
             justify-content: center; 
             align-items: center; 
-            height: 100vh; 
-            /* SỬA 1: Nền loang màu hồng sữa nhẹ nhàng, ấm áp */
+            min-height: 100vh; /* Dùng min-height để tránh lỗi trên thiết bị nhỏ */
+            /* Nền loang màu hồng sữa nhẹ nhàng */
             background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden; /* Ẩn thanh cuộn */
+            overflow: hidden; /* Ẩn thanh cuộn của body */
         }
         
         .container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            width: 100%;
-            max-width: 1000px;
+            justify-content: flex-start; /* Cho mọi thứ bắt đầu từ trên xuống */
+            width: 95%; /* Tăng độ rộng container cho thoáng */
+            max-width: 1200px;
+            height: 90vh; /* Container chiếm gần hết chiều cao màn hình */
             padding: 20px;
+            box-sizing: border-box;
         }
 
+        /* --- CHỈNH SỬA SIZE KHUNG MÔ HÌNH --- */
         model-viewer { 
             width: 100%; 
-            height: 100%; 
-            max-height: 600px; /* Chiều cao khung mô hình */
-            /* SỬA 2: Bo góc, bóng đổ cho khung mô hình */
+            /* SỬA 1: Ép chiều cao khung mô hình lớn lên để chừa chỗ cho camera lùi xa */
+            height: 70vh; /* Mô hình chiếm 70% chiều cao màn hình */
+            /* SỬA 2: Thêm viền và bóng đổ để xác định rõ khung hình (giống hình 3) */
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.3); /* Bóng đổ hồng nhẹ */
-            background-color: transparent;
-            --progress-bar-color: transparent;
+            box-shadow: 0 10px 30px rgba(255, 182, 193, 0.4); /* Bóng hồng đậm hơn tí cho rõ */
+            background-color: rgba(255, 255, 255, 0.5); /* Nền mờ bên trong khung */
+            
+            /* SỬA 3: Các thuộc tính quan trọng để khắc phục mô hình "tàng hình" */
+            --poster-color: transparent; /* Ẩn ảnh chờ */
+            --progress-bar-color: #00ff88; /* Màu thanh load hệ thống */
         }
 
         /* --- CSS CHO LỜI CHÚC (ĐÁNH CHỮ TỪ TỪ) --- */
         .typing-container {
-            margin-top: 30px;
+            /* SỬA 4: Tạo khoảng cách hợp lý dưới mô hình */
+            margin-top: 30px; 
             width: 100%;
             text-align: center;
-            min-height: 100px; /* Để giữ chỗ cho chữ khi hiện ra */
+            min-height: 120px; /* Tăng chiều cao để không bị nhảy trang */
         }
 
         .typing-text {
             color: #d88; /* Màu hồng đậm nhẹ nhàng cho chữ */
-            font-size: 1.2em;
+            font-size: 1.1em; /* Giảm nhẹ size chữ cho tinh tế */
             font-weight: 500;
-            line-height: 1.6;
+            line-height: 1.7;
             margin: 0;
             display: inline-block;
-            white-space: pre-wrap; /* Giữ xuống hàng của văn bản */
+            white-space: pre-wrap; /* Giữ xuống hàng */
         }
 
         /* Con trỏ nhấp nháy tạo cảm giác đang gõ */
         .cursor {
             display: inline-block;
             width: 2px;
-            height: 1em;
+            height: 1.1em;
             background-color: #d88;
             margin-left: 5px;
             vertical-align: middle;
@@ -74,41 +80,9 @@
             50% { opacity: 0; }
         }
 
-        /* --- CSS CHO THANH LOADING (Giữ nguyên) --- */
-        .progress-bar {
-            display: block;
-            width: 33%;
-            height: 20px;
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate3d(-50%, -50%, 0);
-            border-radius: 25px;
-            box-shadow: 0px 3px 10px 3px rgba(0, 0, 0, 0.5);
-            border: 2px solid rgba(255, 255, 255, 0.9);
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-
-        .progress-bar.hide {
-            display: none;
-        }
-
-        .update-bar {
-            background-color: #00ff88; 
-            width: 0%;
-            height: 100%;
-            border-radius: 25px;
-            transition: width 0.3s;
-        }
-
-        .progress-text {
-            position: absolute;
-            top: -30px;
-            width: 100%;
-            text-align: center;
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
+        /* --- CSS CHO THANH LOADING TỰ LÀM (Ẩn đi vì model-viewer có thanh load riêng) --- */
+        .custom-progress-bar {
+            display: none !important; /* Khóa hẳn thanh load cũ */
         }
     </style>
 </head>
@@ -117,19 +91,22 @@
     <div class="container">
         <model-viewer 
             src="model-v4.glb" 
-            alt="Mô hình 3D cho công chúa" 
+            alt="Mô hình 3D đặc biệt" 
             auto-rotate 
             camera-controls 
-            shadow-intensity="1"
-            exposure="1"
+            shadow-intensity="1.5"
+            exposure="1.2"
+            
+            /* SỬA 5: CHIÊU QUYẾT ĐỊNH: Ép camera phải lùi ra rất xa để nhìn thấy mô hình to */
+            /* Giá trị 'auto auto 200%' nghĩa là lùi camera gấp đôi khoảng cách mặc định */
+            camera-orbit="auto auto 200%"
+            /* Cho phép zoom ra xa hơn nữa nếu cần */
+            min-camera-orbit="auto auto 5%"
+            max-camera-orbit="auto auto 500%"
+            
             id="my-model">
             
-            <div slot="progress-bar" class="progress-bar">
-                <div class="progress-text">Đang tải: 0%</div>
-                <div class="update-bar"></div>
-            </div>
-            
-        </model-viewer>
+            </model-viewer>
 
         <div class="typing-container">
             <p id="typing-text" class="typing-text"></p><span class="cursor">|</span>
@@ -138,47 +115,28 @@
 
     <script>
         const modelViewer = document.querySelector('#my-model');
-        const updateBar = document.querySelector('.update-bar');
-        const progressText = document.querySelector('.progress-text');
-        const progressBar = document.querySelector('.progress-bar');
         const typingTextEl = document.querySelector('#typing-text');
         const cursorEl = document.querySelector('.cursor');
 
-        // Văn bản lời chúc của bạn (sử dụng \n để xuống hàng)
         const message = "Gửi công chúa nhỏ, nhớ giữ sức khỏe cho bản thân đấy, ăn uống đàng hoàng,\ntới kỳ thì nhớ giữ ấm, đừng làm việc nặng giữ sức nhé.\nBất cứ lúc nào cũng có thể gọi tui.\nThương cô";
-        
-        // Tốc độ gõ chữ (miligiây mỗi chữ)
         const typingSpeed = 70; 
-        
         let charIndex = 0;
 
-        // Hàm xử lý hiệu ứng gõ chữ
         function startTyping() {
             if (charIndex < message.length) {
                 typingTextEl.textContent += message.charAt(charIndex);
                 charIndex++;
                 setTimeout(startTyping, typingSpeed);
             } else {
-                // Sau khi gõ xong, cho con trỏ biến mất
                 setTimeout(() => {
                     cursorEl.style.display = 'none';
                 }, 1000);
             }
         }
 
-        // Lắng nghe sự kiện tiến trình tải
-        modelViewer.addEventListener('progress', (event) => {
-            const progress = event.detail.totalProgress * 100;
-            updateBar.style.width = `${progress}%`;
-            progressText.textContent = `Đang tải: ${Math.round(progress)}%`;
-            
-            if (progress === 100) {
-                setTimeout(() => {
-                    progressBar.classList.add('hide');
-                    // SỬA 4: Sau khi mô hình tải xong và hiện ra, bắt đầu gõ chữ
-                    setTimeout(startTyping, 500); // Đợi 0.5s cho mô hình hiện ra rồi gõ
-                }, 500);
-            }
+        // Bắt đầu gõ chữ ngay khi mô hình load xong
+        modelViewer.addEventListener('load', () => {
+            setTimeout(startTyping, 1000); // Đợi 1 giây cho ổn định rồi gõ
         });
     </script>
 
