@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trưng bày mô hình 3D</title>
-    <script type="module-v4" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
         body { 
             margin: 0; 
@@ -22,14 +22,14 @@
             height: 100%; 
             max-width: 1200px; 
             max-height: 900px; 
+            --progress-bar-color: transparent; /* Ẩn thanh load mặc định của hệ thống */
         }
 
         /* --- CSS CHO THANH LOADING --- */
         .progress-bar {
             display: block;
             width: 33%;
-            height: 10%;
-            max-height: 20px;
+            height: 20px;
             position: absolute;
             left: 50%;
             top: 50%;
@@ -40,23 +40,18 @@
             background-color: rgba(0, 0, 0, 0.5);
         }
 
-        /* Ẩn thanh loading khi tải xong */
         .progress-bar.hide {
-            visibility: hidden;
-            transition: visibility 0.3s;
+            display: none; /* Dùng display none để ẩn hẳn khi xong */
         }
 
-        /* Phần lõi chạy bên trong thanh loading */
         .update-bar {
-            background-color: #00ff88; /* Màu xanh lá cây dạ quang cho ngầu */
+            background-color: #00ff88; 
             width: 0%;
             height: 100%;
             border-radius: 25px;
-            float: left;
             transition: width 0.3s;
         }
 
-        /* Chữ hiển thị phần trăm */
         .progress-text {
             position: absolute;
             top: -30px;
@@ -65,14 +60,13 @@
             color: white;
             font-weight: bold;
             font-size: 16px;
-            text-shadow: 1px 1px 2px black;
         }
     </style>
 </head>
 <body>
 
     <model-viewer 
-        src="model.glb" 
+        src="model-v4.glb" 
         alt="Mô hình 3D" 
         auto-rotate 
         camera-controls 
@@ -93,22 +87,19 @@
         const progressText = document.querySelector('.progress-text');
         const progressBar = document.querySelector('.progress-bar');
 
-        // Lắng nghe sự kiện tiến trình tải từ model-viewer
         modelViewer.addEventListener('progress', (event) => {
-            // Lấy giá trị phần trăm từ 0 đến 100
             const progress = event.detail.totalProgress * 100;
-            
-            // Cập nhật độ dài của thanh và con số text
             updateBar.style.width = `${progress}%`;
             progressText.textContent = `Đang tải: ${Math.round(progress)}%`;
             
-            // Nếu tải xong 100% thì ẩn thanh này đi
             if (progress === 100) {
-                progressBar.classList.add('hide');
+                // Đợi một chút cho mô hình dựng xong rồi mới ẩn thanh load
+                setTimeout(() => {
+                    progressBar.classList.add('hide');
+                }, 500);
             }
         });
     </script>
 
 </body>
 </html>
-
